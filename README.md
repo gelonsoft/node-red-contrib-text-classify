@@ -28,10 +28,10 @@ Flows and test datasets are available in the 'test' folder. Make sure that the p
 **Tip:** you can run 'node-red' (or 'sudo node-red' if you are using linux) from the folder '.node-red/node-modules/node-red-contrib-text-classify' and the paths will be automatically correct.
 
 This flow loads a training partition and trains a 'text-classify-trainer', saving the model locally.
-![Training](https://imgur.com/oIDHwYu "Training")
+![Training](https://i.imgur.com/oIDHwYu.png "Training")
 
 This flow loads a test partition and evaluates a previously trained model.
-![Evaluation](https://imgur.com/ufHBYLx "Evaluation")
+![Evaluation](https://i.imgur.com/ufHBYLx.png "Evaluation")
 
 By default it uses Bert Encoder and Bert Preprocessor models, but you can download alternative from https://www.kaggle.com/models/tensorflow/bert/tensorFlow2/ , unpack .tar.gz to any dirs and specify new model location by setting the following environment variables:
 * TC_BERT_PREPROCESSOR_DIR (by default uses bert-tensorflow2-en-uncased-preprocess-v3 model from ./bert/preprocessor subdirectory )
