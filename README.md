@@ -9,7 +9,7 @@ Install python and the following libraries:
 * [Numpy](http://www.numpy.org/ "Numpy")
 * [Pandas](https://pandas.pydata.org/ "Pandas")
 * [SciKit-Learn](http://scikit-learn.org "SciKit-Learn")
-* Full pip install:  pip install numpy==1.26.4 nltk pandas==2.2.3 tf-models-official==2.10.0 tensorflow==2.10.1 tensorflow_text==2.10.0 tensorflow_addons==0.20.0 tensorflow_hub 
+* Full pip install: pip install numpy==1.26.4 nltk pandas==2.2.3 tf-models-official==2.10.0 tensorflow==2.10.1 tensorflow_text==2.10.0 tensorflow_addons==0.20.0 tensorflow_hub 
 * Run the following in your python after installation:
   * import nltk
   * nltk.download('stopwords')
