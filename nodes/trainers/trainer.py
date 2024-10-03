@@ -59,8 +59,8 @@ while True:
 		x=df['x'].apply(preprocess_text)
 		categor=pandas.Categorical(df['y'])
 		y=pandas.DataFrame(categor.codes)
-		df.to_csv("d:/a/df.csv")
-		y.to_csv("d:/a/y.csv")
+		#df.to_csv("d:/a/df.csv")
+		#y.to_csv("d:/a/y.csv")
 		df=None
 		labels=categor.categories.to_list()
 
