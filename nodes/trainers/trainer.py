@@ -51,7 +51,7 @@ while True:
 	except Exception as e:
 		print(e)
 		#lead file specified in the request
-		df = pandas.read_csv(json.loads(data)['file'], header=None)
+		df = pandas.read_csv(json.loads(data)['file'])
 
 	labels=None
 
