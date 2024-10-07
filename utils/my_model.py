@@ -13,7 +13,7 @@ def load_tokenizer():
 def create_new_model(value_count):
     if os.getenv('TC_USE_HUBBLE_HUG','0')=='1':
         from transformers import TFAutoModelForSequenceClassification
-        model = TFAutoModelForSequenceClassification.from_pretrained(os.getenv('TC_BERT_ENCODER_DIR',"cointegrated/LaBSE-en-ru"))
+        model = TFAutoModelForSequenceClassification.from_pretrained(os.getenv('TC_BERT_ENCODER_DIR',"cointegrated/LaBSE-en-ru"),num_labels=value_count)
         model.compile(optimizer=optimizers.Adam(learning_rate=1e-3))
     else:
         text_input = tf.keras.layers.Input(shape=(), dtype=tf.string, name='text')
