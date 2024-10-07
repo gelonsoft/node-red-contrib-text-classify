@@ -1,11 +1,6 @@
-import sys
-
-old_stdout=sys.stdout
-silent_stdout = sys.stderr
-sys.stdout = silent_stdout
-
 import json
 import pandas
+import sys
 import io
 from urllib.parse import unquote
 from official.nlp import optimization #Do not del
@@ -13,7 +8,9 @@ import tensorflow_text as text  #Do not del
 import tensorflow as tf
 tf.get_logger().setLevel('ERROR')
 
-
+old_stdout=sys.stdout
+silent_stdout = sys.stderr
+sys.stdout = silent_stdout
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -59,11 +56,7 @@ while True:
 	if model is None:
 		raise('Cannot find model.')
 	model.update()
-	if os.getenv('TC_USE_HUBBLE_HUG','0')=='1':
-		from datasets import Dataset
-		original_result=model.predict(dict(model.tokenizer(Dataset.from_pandas(pandas.DataFrame(x))["x"], padding=True, truncation=True, max_length=64, return_tensors='tf')))
-	else:
-		original_result=model.predict(x)
+	original_result=model.predict(x)
 	sys.stdout = old_stdout
 	print(json.dumps({"predict":[get_pretty_output(model.labels,z) for z in original_result]},cls=NumpyEncoder), flush=True)
 	sys.stdout=silent_stdout

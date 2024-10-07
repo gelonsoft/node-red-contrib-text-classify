@@ -1,17 +1,17 @@
+import json
+import pickle
+import pandas
+import io
 import sys
+from urllib.parse import unquote
+import tensorflow as tf
+tf.get_logger().setLevel('ERROR')
 
 old_stdout=sys.stdout
 silent_stdout = sys.stderr
 sys.stdout = silent_stdout
 
-import json
-import pickle
-import pandas
-import io
 
-from urllib.parse import unquote
-import tensorflow as tf
-tf.get_logger().setLevel('ERROR')
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -72,11 +72,7 @@ while True:
 
 	try:
 		#train model
-		if os.getenv('TC_USE_HUBBLE_HUG','0')=='1':
-			from datasets import Dataset
-			automl.fit(dict(automl.tokenizer(Dataset.from_pandas(pandas.DataFrame(x))["x"], padding=True, truncation=True, max_length=64, return_tensors='tf'),y))
-		else:
-			automl.fit(pandas.DataFrame(x),y)
+		automl.fit(pandas.DataFrame(x),y)
 	except Exception as e:
 		raise()
 

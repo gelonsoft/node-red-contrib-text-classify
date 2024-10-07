@@ -4,7 +4,11 @@ import pickle
 import os
 import json
 import numpy as np
+import sys
 from keras.models import load_model
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../../utils')
+from my_model import load_tokenizer
 
 class NumpyEncoder(json.JSONEncoder):
 	""" Special json encoder for numpy types """
@@ -20,6 +24,10 @@ class NumpyEncoder(json.JSONEncoder):
 class SKLW:
 	def __init__(self, path, model=None, labels=None):
 		self.path = path
+		if os.getenv('TC_USE_HUBBLE_HUG','0')=='1':
+			self.tokenizer=load_tokenizer()
+		else:
+			self.tokenizer=None
 		if model is not None:
 			self.model = model
 			self.labels = labels
