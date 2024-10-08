@@ -1,7 +1,7 @@
 import sys
 from datasets import Dataset
 
-old_stdout=sys.stdout
+old_stdout=sys.__stdout__
 silent_stdout = sys.stderr
 sys.stdout = silent_stdout
 

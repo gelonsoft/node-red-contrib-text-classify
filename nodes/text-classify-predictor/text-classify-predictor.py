@@ -1,6 +1,6 @@
 import sys
 
-old_stdout=sys.stdout
+old_stdout=sys.__stdout__
 silent_stdout = sys.stderr
 sys.stdout = silent_stdout
 
@@ -68,7 +68,6 @@ while True:
 	except Exception as e:
 		raise
 	original_result=pretty_output(original_result)
-
 	sys.stdout = old_stdout
-	print(json.dumps({"predict":original_result}))
+	print(json.dumps({"predict":original_result}), flush=True)
 	sys.stdout=silent_stdout
