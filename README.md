@@ -5,11 +5,12 @@ Text classify predictions can be performed through the use of this package.
 ## Pre requisites
 Be sure to have a working installation of [Node-RED](https://nodered.org/ "Node-RED").  
 Install python and the following libraries:
-* [Python](https://www.python.org/ "Python") 3.9.0 ) accessible by the command 'python' (on linux 'python3')
+* [Python](https://www.python.org/ "Python") 3.9.+ accessible by the command 'python' (on linux 'python3')
 * [Numpy](http://www.numpy.org/ "Numpy")
 * [Pandas](https://pandas.pydata.org/ "Pandas")
 * [SciKit-Learn](http://scikit-learn.org "SciKit-Learn")
-* Full pip install: pip install numpy==1.26.4 nltk pandas==2.2.3 tf-models-official==2.10.0 tensorflow==2.10.1 tensorflow_text==2.10.0 tensorflow_addons==0.20.0 tensorflow_hub 
+* [PyTorch](http://scikit-learn.org "Torch(PyTorch)")
+* Full pip install: pip install optuna scikit-learn evaluate transformers[torch] datasets nlp pandas nltk
 * Run the following in your python after installation:
   * import nltk
   * nltk.download('stopwords')
@@ -23,9 +24,12 @@ To install the latest version use the Menu - Manage palette option and search fo
 
 ## Usage
 These flows create a dataset, train a model and then evaluate it. Models, after training, can be use in real scenarios to make predictions.
+Models autotune hyperparameters with Optuna. 
+Dataset must contain 'text' (input) and 'label' (target) columns.
 
 Flows and test datasets are available in the 'test' folder. Make sure that the paths specified inside nodes' configurations are correct before trying to execute the program.  
 **Tip:** you can run 'node-red' (or 'sudo node-red' if you are using linux) from the folder '.node-red/node-modules/node-red-contrib-text-classify' and the paths will be automatically correct.
+**Tip:** models autotune hyperparameters with Optuna on training
 
 This flow loads a training partition and trains a 'text-classify-trainer', saving the model locally.
 ![Training](https://i.imgur.com/oIDHwYu.png "Training")
@@ -33,9 +37,7 @@ This flow loads a training partition and trains a 'text-classify-trainer', savin
 This flow loads a test partition and evaluates a previously trained model.
 ![Evaluation](https://i.imgur.com/ufHBYLx.png "Evaluation")
 
-By default it uses Bert Encoder and Bert Preprocessor models, but you can download alternative from https://www.kaggle.com/models/tensorflow/bert/tensorFlow2/ , unpack .tar.gz to any dirs and specify new model location by setting the following environment variables:
-* TC_BERT_PREPROCESSOR_DIR (by default uses bert-tensorflow2-en-uncased-preprocess-v3 model from ./bert/preprocessor subdirectory )
-* TC_BERT_ENCODER_DIR (by default uses bert-tensorflow2-bert-en-uncased-l-4-h-128-a-2-v2 model from ./bert/encoder subdirectory)
+You can use text classification model from [Hugging Face](https://huggingface.co/models?pipeline_tag=text-classification&sort=trending "Hugging Face")
 
 Example flows available here:
 ```json
@@ -63,7 +65,7 @@ Example flows available here:
     "once": false,
     "onceDelay": 0.1,
     "topic": "",
-    "payload": "[ {\"x\":\"bla-bla\",\"y\":\"talk\"}, {\"x\":\"some message\",\"y\":\"talk\"}, {\"x\":\"I will kill you\",\"y\":\"warning\"}, {\"x\":\"fire at me\",\"y\":\"warning\"}, {\"x\":\"mine field\",\"y\":\"warning\"} ]",
+    "payload": "[ {\"text\":\"bla-bla\",\"label\":\"talk\"}, {\"text\":\"some message\",\"label\":\"talk\"}, {\"text\":\"I will kill you\",\"label\":\"warning\"}, {\"text\":\"fire at me\",\"label\":\"warning\"}, {\"text\":\"mine field\",\"label\":\"warning\"} ]",
     "payloadType": "json",
     "x": 360,
     "y": 140,
@@ -88,7 +90,7 @@ Example flows available here:
     "once": false,
     "onceDelay": 0.1,
     "topic": "",
-    "payload": "[ {\"x\":\"bla\"}, {\"x\":\"message\"}, {\"x\":\"kill\"}, {\"x\":\"fire\"}, {\"x\":\"mine\"} ]",
+    "payload": "[ {\"text\":\"bla\"}, {\"text\":\"message\"}, {\"text\":\"kill\"}, {\"text\":\"fire\"}, {\"text\":\"mine\"} ]",
     "payloadType": "json",
     "x": 350,
     "y": 240,

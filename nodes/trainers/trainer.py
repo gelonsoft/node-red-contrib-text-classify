@@ -1,23 +1,20 @@
 import sys
+from datasets import Dataset
 
 old_stdout=sys.stdout
 silent_stdout = sys.stderr
 sys.stdout = silent_stdout
 
 import json
-import pickle
 import pandas
 import io
-
 from urllib.parse import unquote
-import tensorflow as tf
-tf.get_logger().setLevel('ERROR')
+
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../../utils')
 from sklw import SKLW
-from my_model import (create_new_model,GET_LEN_SEQ)
 from preprocess_text import preprocess_text
 
 REG_DETECTORS = ['text-classify-trainer']
@@ -36,7 +33,10 @@ while True:
 			config['save']=os.path.join(new_config['savePath'], new_config['saveName'])
 		if new_config.get('orient'):
 			config['orient']=new_config['orient']
-
+		if new_config.get('tokenizerPathOrName'):
+			config['tokenizerPathOrName']=new_config['tokenizerPathOrName']
+		if new_config.get('modelPathOrName'):
+			config['modelPathOrName']=new_config['modelPathOrName']
 		save = config['save']
 		sys.stdout = old_stdout
 		print(json.dumps({"state":"parameters applied","config":config}), flush=True)
@@ -57,28 +57,23 @@ while True:
 	labels=None
 
 	if config['automl'] in REG_DETECTORS:
-		x=df['x'].apply(preprocess_text)
-		categor=pandas.Categorical(df['y'])
-		y=pandas.DataFrame(categor.codes)
-		#df.to_csv("d:/a/df.csv")
-		#y.to_csv("d:/a/y.csv")
-		df=None
-		labels=categor.categories.to_list()
+		pass
 
 	automl = None
 
 	if config['automl'] == 'text-classify-trainer':
-		automl = SKLW(path=save, model=create_new_model(len(labels)),labels=labels) #name = 'reg',#metric = config['metric']))
-
-	try:
-		#train model
-		if os.getenv('TC_USE_HUBBLE_HUG','0')=='1':
-			from datasets import Dataset
-			automl.fit(dict(automl.tokenizer(Dataset.from_pandas(pandas.DataFrame(x))["x"], padding='max_length', truncation=True, max_length=GET_LEN_SEQ(), return_tensors='tf')),y)
-		else:
-			automl.fit(pandas.DataFrame(x),y)
-	except Exception as e:
-		raise()
+		df['text']=df['text'].apply(preprocess_text)
+		categor=pandas.Categorical(df['label'])
+		id2label=dict( enumerate(categor.categories ) )
+		df['label']=pandas.DataFrame(categor.codes)
+		categor=None
+		datasets=Dataset.from_pandas(df).train_test_split(test_size=0.2)
+		df=None
+		automl = SKLW(path=save,tokenizer_path=config['tokenizerPathOrName'],initial_model_path=config['modelPathOrName'],id2label=id2label)
+		try:
+			automl.fit(datasets)
+		except Exception as e:
+			raise()
 
 	sys.stdout = old_stdout
 	print(json.dumps({"state":"training completed","automl":config['automl']}), flush=True)

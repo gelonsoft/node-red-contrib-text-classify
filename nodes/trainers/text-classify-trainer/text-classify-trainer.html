@@ -3,10 +3,12 @@
 		category: 'machine learning',
 		color: '#DAC4B4',
 		defaults: {
-			name: {value:""},
+			name: {value:"text-classify-trainer"},
 			savePath: {value:""},
 			saveName: {value:""},
-            orient: {value:"split"},
+			tokenizerPathOrName: {value:"cointegrated/LaBSE-en-ru"},
+			modelPathOrName: {value:"cointegrated/LaBSE-en-ru"},
+            orient: {value:"records"},
 		},
 		inputs:1,
 		outputs:2,
@@ -30,6 +32,14 @@
 		<label for="node-input-saveName"><i class="icon-tag"></i>Save name</label>
 		<input type="text" id="node-input-saveName" placeholder="Save name">
 	</div>
+		<div class="form-row">
+		<label for="node-input-tokenizerPathOrName"><i class="icon-tag"></i>Tokenizer directory path or name</label>
+		<input type="text" id="node-input-tokenizerPathOrName" placeholder="Tokenizer directory path or name">
+	</div>
+		<div class="form-row">
+		<label for="node-input-modelPathOrName"><i class="icon-tag"></i>Model directory path or name</label>
+		<input type="text" id="node-input-modelPathOrName" placeholder="Model directory path or name">
+	</div>
     <div class="form-row">
 		<label for="node-input-orient"><i class="icon-tag"></i>Orient</label>
         <select id="node-input-orient">
@@ -44,7 +54,7 @@
 </script>
 
 <script type="text/x-red" data-help-name="text-classify-trainer">
-	<p>A node that trains a TabularAutoML model.</p>
+	<p>A node that trains a Hugging face model.</p>
 
 	<h3>Inputs</h3>
 	<dl class="message-properties">
@@ -72,7 +82,7 @@
 
 	<h3>Details</h3>
 	<p>
-		<code>msg.payload</code> is a json containing training cases with labels "x" and "y". See orient parameter value of pandas.read_json
+		<code>msg.payload</code> is a json containing training cases with labels "text" and "label". See orient parameter value of pandas.read_json
 	</p>
 	<p>
 		This node fits a model to such json to match the labels.

@@ -8,12 +8,6 @@ import json
 import pandas
 import io
 from urllib.parse import unquote
-from official.nlp import optimization #Do not del
-import tensorflow_text as text  #Do not del
-import tensorflow as tf
-tf.get_logger().setLevel('ERROR')
-
-
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -21,19 +15,24 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../../utils')
 from sklw import NumpyEncoder
 from preprocess_text import preprocess_text
-from my_model import GET_LEN_SEQ
 
-def get_pretty_output(labels,result):
-	a=dict(zip(labels,result))
-	return {k: str(v*100) for k, v in sorted(a.items(), key=lambda item: item[1],reverse=True)[:5]}
+def pretty_output(some):
+	result=[]
+	for a in some:
+		row={}
+		for r in a:
+			row[r['label']]=r['score']*100
+		row=dict(sorted(row.items(), key=lambda item: item[1],reverse=True)[:5])
+		result.append(row)
+	return result
 
 #read configurations
 config = json.loads(unquote(input()))
-model=None
+automl=None
 def load():
 	try:
 		from sklw import SKLW
-		return SKLW(path=config['path'])
+		return SKLW(path=config['path'],tokenizer_path=config['tokenizerPathOrName'],initial_model_path=config['modelPathOrName'])
 	except Exception as e:
 		raise e
 		return None
@@ -46,25 +45,30 @@ while True:
 			config['path']=os.path.join(new_config['modelPath'], new_config['modelName'])
 		if new_config.get('orient'):
 			config['orient']=new_config['orient']
-		model = load()
+		if new_config.get('tokenizerPathOrName'):
+			config['tokenizerPathOrName']=new_config['tokenizerPathOrName']
+		if new_config.get('modelPathOrName'):
+			config['modelPathOrName']=new_config['modelPathOrName']
+		automl = load()
 		sys.stdout = old_stdout
 		print(json.dumps({"state":"parameters applied","config":config}))
 		sys.stdout=silent_stdout
 		continue
 
 	#read request
-	features = pandas.read_json(io.StringIO(data.encode(errors='ignore').decode(encoding='utf-8',errors='ignore')), orient=config['orient'])
-	x=features['x'].apply(preprocess_text)
-	if model is None:
-		model = load()
-	if model is None:
+	df = pandas.read_json(io.StringIO(data.encode(errors='ignore').decode(encoding='utf-8',errors='ignore')), orient=config['orient'])
+	df=df['text'].apply(preprocess_text)
+	if automl is None:
+		automl = load()
+	if automl is None:
 		raise('Cannot find model.')
-	model.update()
-	if os.getenv('TC_USE_HUBBLE_HUG','0')=='1':
-		from datasets import Dataset
-		original_result=model.predict(dict(model.tokenizer(Dataset.from_pandas(pandas.DataFrame(x))["x"], padding='max_length', truncation=True, max_length=GET_LEN_SEQ(), return_tensors='tf')))
-	else:
-		original_result=model.predict(x)
+	automl.update()
+	try:
+		original_result=automl.predict(df['text'].array)
+	except Exception as e:
+		raise
+	original_result=pretty_output(original_result)
+
 	sys.stdout = old_stdout
-	print(json.dumps({"predict":[get_pretty_output(model.labels,z) for z in original_result]},cls=NumpyEncoder), flush=True)
+	print(json.dumps({"predict":original_result}))
 	sys.stdout=silent_stdout

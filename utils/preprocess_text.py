@@ -4,9 +4,9 @@ import nltk
 #nltk.download('wordnet')
 from nltk.corpus import stopwords
 import re
-import string
+#import string
 
-from string import punctuation
+#from string import punctuation
 
 # mystem = Mystem()
 # russian_stopwords = stopwords.words("russian")

@@ -11,6 +11,8 @@ module.exports = function(RED){
 		node.config = {
 			automl: 'text-classify-trainer',
 			save: path.join(config.savePath, config.saveName),
+			tokenizerPathOrName: config.tokenizerPathOrName,
+			modelPathOrName: config.modelPathOrName,
 			orient: config.orient || 'split',
 		}
 
