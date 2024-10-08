@@ -64,7 +64,7 @@ while True:
 		raise('Cannot find model.')
 	automl.update()
 	try:
-		original_result=automl.predict(df.array)
+		original_result=automl.predict(df.to_list())
 	except Exception as e:
 		raise
 	original_result=pretty_output(original_result)
