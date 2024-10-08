@@ -30,7 +30,7 @@ class SKLW:
 		else:
 			try:
 				self.model= AutoModelForSequenceClassification.from_pretrained(self.path)
-				self.last = os.stat(self.path+"config.json").st_mtime
+				self.last = os.stat(self.path+"/config.json").st_mtime
 				self.pipe = TextClassificationPipeline(model=self.model, tokenizer=self.tokenizer, return_all_scores=True)
 			except Exception as e:
 				print(e)
@@ -88,7 +88,7 @@ class SKLW:
 		return self.pipe(x)
 
 	def update(self):
-		modified = os.stat(self.path+"config.json").st_mtime
+		modified = os.stat(self.path+"/config.json").st_mtime
 		if(modified > self.last):
 			self.last = modified
 			self.model= AutoModelForSequenceClassification.from_pretrained(self.path)
