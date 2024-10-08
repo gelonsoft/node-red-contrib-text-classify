@@ -73,9 +73,9 @@ class SKLW:
 			data_collator=data_collator,
 			compute_metrics=compute_metrics,
 		)
-		best_run = trainer.hyperparameter_search(n_trials=10, direction="maximize")
-		for n, v in best_run.hyperparameters.items():
-			setattr(trainer.args, n, v)
+		#best_run = trainer.hyperparameter_search(n_trials=10, direction="maximize")
+		#for n, v in best_run.hyperparameters.items():
+		#	setattr(trainer.args, n, v)
 
 		trainer.train()
 

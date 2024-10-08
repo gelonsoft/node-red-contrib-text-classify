@@ -10,7 +10,7 @@ Install python and the following libraries:
 * [Pandas](https://pandas.pydata.org/ "Pandas")
 * [SciKit-Learn](http://scikit-learn.org "SciKit-Learn")
 * [PyTorch](http://scikit-learn.org "Torch(PyTorch)")
-* Full pip install: pip install optuna scikit-learn evaluate transformers[torch] datasets nlp pandas nltk
+* Full pip install: pip install scikit-learn evaluate transformers[torch] datasets nlp pandas nltk
 * Run the following in your python after installation:
   * import nltk
   * nltk.download('stopwords')
@@ -29,7 +29,6 @@ Dataset must contain 'text' (input) and 'label' (target) columns.
 
 Flows and test datasets are available in the 'test' folder. Make sure that the paths specified inside nodes' configurations are correct before trying to execute the program.  
 **Tip:** you can run 'node-red' (or 'sudo node-red' if you are using linux) from the folder '.node-red/node-modules/node-red-contrib-text-classify' and the paths will be automatically correct.
-**Tip:** models autotune hyperparameters with Optuna on training
 
 This flow loads a training partition and trains a 'text-classify-trainer', saving the model locally.
 ![Training](https://i.imgur.com/oIDHwYu.png "Training")
