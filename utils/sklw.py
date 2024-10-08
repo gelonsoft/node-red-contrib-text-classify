@@ -43,11 +43,13 @@ class SKLW:
 		else:
 			self.model.fit(x=x,validation_split=0.2)
 
+		#print("Saving model to "+self.path)
 		dir = os.path.dirname(self.path)
 		if not os.path.isdir(dir):
 			os.makedirs(dir, exist_ok=True)
 
 		#pickle.dump(self.model, open(self.path, "wb"))
+		#print("Saving model to "+self.path)
 		self.model.save(self.path)
 		pickle.dump(self.labels, open(self.path+".labels.txt", "wb"))
 

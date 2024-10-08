@@ -133,3 +133,4 @@ dist
 node_modules
 
 *.pyc
+/test/test.py

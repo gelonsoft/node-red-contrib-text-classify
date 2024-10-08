@@ -21,6 +21,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../../utils')
 from sklw import NumpyEncoder
 from preprocess_text import preprocess_text
+from my_model import GET_LEN_SEQ
 
 def get_pretty_output(labels,result):
 	a=dict(zip(labels,result))
@@ -61,7 +62,7 @@ while True:
 	model.update()
 	if os.getenv('TC_USE_HUBBLE_HUG','0')=='1':
 		from datasets import Dataset
-		original_result=model.predict(dict(model.tokenizer(Dataset.from_pandas(pandas.DataFrame(x))["x"], padding=True, truncation=True, max_length=64, return_tensors='tf')))
+		original_result=model.predict(dict(model.tokenizer(Dataset.from_pandas(pandas.DataFrame(x))["x"], padding='max_length', truncation=True, max_length=GET_LEN_SEQ(), return_tensors='tf')))
 	else:
 		original_result=model.predict(x)
 	sys.stdout = old_stdout

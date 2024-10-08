@@ -17,7 +17,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../../utils')
 from sklw import SKLW
-from my_model import create_new_model
+from my_model import (create_new_model,GET_LEN_SEQ)
 from preprocess_text import preprocess_text
 
 REG_DETECTORS = ['text-classify-trainer']
@@ -74,7 +74,7 @@ while True:
 		#train model
 		if os.getenv('TC_USE_HUBBLE_HUG','0')=='1':
 			from datasets import Dataset
-			automl.fit(dict(automl.tokenizer(Dataset.from_pandas(pandas.DataFrame(x))["x"], padding=True, truncation=True, max_length=64, return_tensors='tf')),y)
+			automl.fit(dict(automl.tokenizer(Dataset.from_pandas(pandas.DataFrame(x))["x"], padding='max_length', truncation=True, max_length=GET_LEN_SEQ(), return_tensors='tf')),y)
 		else:
 			automl.fit(pandas.DataFrame(x),y)
 	except Exception as e:
