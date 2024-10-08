@@ -26,16 +26,16 @@ class SKLW:
 
 		if id2label is not None:
 			self.model= AutoModelForSequenceClassification.from_pretrained(initial_model_path,num_labels=len(id2label),id2label=id2label,label2id={y:x for x,y in id2label.items()})
-			self.pipe=None
+			self.pipe=TextClassificationPipeline(model=self.model, tokenizer=self.tokenizer, top_k=5)
 		else:
 			try:
 				self.model= AutoModelForSequenceClassification.from_pretrained(self.path)
 				self.last = os.stat(self.path+"/config.json").st_mtime
-				self.pipe = TextClassificationPipeline(model=self.model, tokenizer=self.tokenizer, return_all_scores=True)
+				self.pipe = TextClassificationPipeline(model=self.model, tokenizer=self.tokenizer, top_k=5)
 			except Exception as e:
 				print(e)
 				self.model= AutoModelForSequenceClassification.from_pretrained(initial_model_path)
-				self.pipe= TextClassificationPipeline(model=self.model, tokenizer=self.tokenizer, return_all_scores=True)
+				self.pipe= TextClassificationPipeline(model=self.model, tokenizer=self.tokenizer, top_k=5)
 
 	def fit(self, datasets):
 		tokenizer=self.tokenizer
@@ -92,4 +92,4 @@ class SKLW:
 		if(modified > self.last):
 			self.last = modified
 			self.model= AutoModelForSequenceClassification.from_pretrained(self.path)
-			self.pipe= TextClassificationPipeline(model=self.model, tokenizer=self.tokenizer, return_all_scores=True)
+			self.pipe= TextClassificationPipeline(model=self.model, tokenizer=self.tokenizer, top_k=5)
