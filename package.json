@@ -24,7 +24,9 @@
 		"nodes": {
 			"text-classify-predictor": "nodes/text-classify-predictor/text-classify-predictor.js",
 			"text-classify-trainer": "nodes/text-classify-trainer/text-classify-trainer.js",
-			"text-classify-text-to-embed": "nodes/text-classify-text-to-embed/text-classify-text-to-embed.js"
+			"text-classify-text-to-embed": "nodes/text-classify-text-to-embed/text-classify-text-to-embed.js",
+			"text-classify-light-predictor": "nodes/text-classify-light-predictor/text-classify-light-predictor.js",
+			"text-classify-light-trainer": "nodes/text-classify-light-trainer/text-classify-light-trainer.js"
 		}
 	},
 	"dependencies": {
