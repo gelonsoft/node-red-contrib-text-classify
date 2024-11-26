@@ -1,3 +1,4 @@
+import io
 import sys
 
 import numpy as np
@@ -97,7 +98,7 @@ while True:
     else:
         try:
             # load data from request
-            df = pandas.DataFrame.from_dict(data['data'], orient=config['orient'])
+            df = pandas.read_json(io.StringIO(json.dumps(data).encode(errors='ignore').decode(encoding='utf-8',errors='ignore')), orient=config['orient'])
         except Exception as e:
             print(e)
             continue

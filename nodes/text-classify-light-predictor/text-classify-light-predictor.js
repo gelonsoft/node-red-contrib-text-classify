@@ -1,7 +1,7 @@
 module.exports = function(RED){
 	function rFCNode(config){
 		const path = require('path')
-		const utils = require('../../../utils/utils')
+		const utils = require('../../utils/utils')
 
 		const node = this;
 
