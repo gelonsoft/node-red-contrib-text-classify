@@ -1,4 +1,5 @@
 import sys
+import traceback
 
 old_stdout = sys.__stdout__
 silent_stdout = sys.__stderr__
@@ -10,7 +11,6 @@ import pandas
 import io
 
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../../utils')
 from preprocess_text import preprocess_text
@@ -49,7 +49,6 @@ def load():
 		return SKLW(path=config['path'],tokenizer_path=config['modelPathOrName'],initial_model_path=config['modelPathOrName'])
 	except Exception as e:
 		raise e
-		return None
 
 while True:
 	msg=input()
@@ -59,7 +58,10 @@ while True:
 		try:
 			data = json.loads(base64.b64decode(buf))
 		except Exception as e:
-			print(e)
+			print(e,file=sys.__stderr__,flush=True)
+			if os.environ.get('DEBUG','0')=='1':
+				print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+				raise e
 			continue
 		buf=""
 	else:
@@ -84,14 +86,20 @@ while True:
 		try:
 			df = pandas.read_csv(data['file'])
 		except Exception as e:
-			print(e)
+			print(e,file=sys.__stderr__,flush=True)
+			if os.environ.get('DEBUG','0')=='1':
+				print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+				raise e
 			continue
 	else:
 		try:
 			#load data from request
 			df = pandas.read_json(io.StringIO(json.dumps(data).encode(errors='ignore').decode(encoding='utf-8',errors='ignore')), orient=config['orient'])
 		except Exception as e:
-			print(e)
+			print(e,file=sys.__stderr__,flush=True)
+			if os.environ.get('DEBUG','0')=='1':
+				print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+				raise e
 			continue
 	try:
 		df=df['text'].apply(preprocess_text)
@@ -105,5 +113,8 @@ while True:
 		print(base64.b64encode(content.encode()).decode('utf-8')+"\t\t\t\n",flush=True)
 		sys.stdout=silent_stdout
 	except Exception as e:
-		print(e)
+		print(e,file=sys.__stderr__,flush=True)
+		if os.environ.get('DEBUG','0')=='1':
+			print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+			raise e
 		continue

@@ -1,4 +1,5 @@
 import sys
+import traceback
 
 old_stdout = sys.__stdout__
 silent_stdout = sys.__stderr__
@@ -15,7 +16,6 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../../utils')
 from sklw import SKLW
 from preprocess_text import preprocess_text
 
-REG_DETECTORS = ['text-classify-trainer']
 
 # read configurations
 buf=''
@@ -39,7 +39,10 @@ while True:
 		try:
 			data = json.loads(base64.b64decode(buf))
 		except Exception as e:
-			print(e)
+			print(e,file=sys.__stderr__,flush=True)
+			if os.environ.get('DEBUG','0')=='1':
+				print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+				raise e
 			continue
 		buf=""
 	else:
@@ -62,24 +65,27 @@ while True:
 		try:
 			df = pandas.read_csv(data['file'])
 		except Exception as e:
-			print(e)
+			print(e,file=sys.__stderr__,flush=True)
+			if os.environ.get('DEBUG','0')=='1':
+				print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+				raise e
 			continue
 	else:
 		try:
 			#load data from request
 			df = pandas.read_json(io.StringIO(json.dumps(data).encode(errors='ignore').decode(encoding='utf-8',errors='ignore')), orient=config['orient'])
 		except Exception as e:
-			print(e)
+			print(e,file=sys.__stderr__,flush=True)
+			if os.environ.get('DEBUG','0')=='1':
+				print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+				raise e
 			continue
 
 	labels=None
 
-	if config['automl'] in REG_DETECTORS:
-		pass
-
 	automl = None
 
-	if config['automl'] == 'text-classify-trainer':
+	try:
 		df['text']=df['text'].apply(preprocess_text)
 		categor=pandas.Categorical(df['label'])
 		id2label=dict( enumerate(categor.categories ) )
@@ -88,13 +94,14 @@ while True:
 		datasets=Dataset.from_pandas(df).train_test_split(test_size=0.2)
 		df=None
 		automl = SKLW(path=save,tokenizer_path=config['modelPathOrName'],initial_model_path=config['modelPathOrName'],id2label=id2label)
-		try:
-			automl.fit(datasets)
-		except Exception as e:
-			raise()
-	content=json.dumps({"state":"training completed","automl":config['automl']})
-	sys.stdout = old_stdout
-	print(base64.b64encode(content.encode()).decode('utf-8')+"\t\t\t\n",flush=True)
-	sys.stdout=silent_stdout
-
-	print("Done")
+		automl.fit(datasets)
+		content=json.dumps({"state":"training completed","automl":config['automl']})
+		sys.stdout = old_stdout
+		print(base64.b64encode(content.encode()).decode('utf-8')+"\t\t\t\n",flush=True)
+		sys.stdout=silent_stdout
+	except Exception as e:
+		print(e,file=sys.__stderr__,flush=True)
+		if os.environ.get('DEBUG','0')=='1':
+			print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+			raise e
+		continue
