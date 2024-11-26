@@ -1,20 +1,23 @@
 import sys
 
-old_stdout=sys.__stdout__
-silent_stdout = sys.stderr
+old_stdout = sys.__stdout__
+silent_stdout = sys.__stderr__
 sys.stdout = silent_stdout
 
+import base64
 import json
 import pandas
 import io
-from urllib.parse import unquote
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../../utils')
-from sklw import NumpyEncoder
 from preprocess_text import preprocess_text
+
+if os.environ.get('DISABLE_SSL_VERIFY', "0") == "1":
+	import ssl
+	ssl._create_default_https_context = ssl._create_unverified_context
 
 def pretty_output(some):
 	result=[]
@@ -26,8 +29,19 @@ def pretty_output(some):
 		result.append(row)
 	return result
 
-#read configurations
-config = json.loads(unquote(input()))
+
+# read configurations
+buf=''
+while True:
+	msg=input()
+	buf=buf+msg
+	if "\t\t\t" in msg:
+		config = json.loads(base64.b64decode(buf))
+		buf=""
+		break
+	else:
+		continue
+
 automl=None
 def load():
 	try:
@@ -38,9 +52,20 @@ def load():
 		return None
 
 while True:
-	data=unquote(input())
-	if "orient" in data:
-		new_config = json.loads(data)
+	msg=input()
+	buf=buf+msg
+	#read request
+	if "\t\t\t" in msg:
+		try:
+			data = json.loads(base64.b64decode(buf))
+		except Exception as e:
+			print(e)
+			continue
+		buf=""
+	else:
+		continue
+	if "config" in data:
+		new_config = data['config']
 		if new_config.get('modelPath') and new_config.get('modelName'):
 			config['path']=os.path.join(new_config['modelPath'], new_config['modelName'])
 		if new_config.get('orient'):
@@ -50,24 +75,37 @@ while True:
 		if new_config.get('modelPathOrName'):
 			config['modelPathOrName']=new_config['modelPathOrName']
 		automl = load()
+		content=json.dumps({"state":"parameters applied","config":config})
 		sys.stdout = old_stdout
-		print(json.dumps({"state":"parameters applied","config":config}))
+		print(base64.b64encode(content.encode()).decode('utf-8')+"\t\t\t\n",flush=True)
 		sys.stdout=silent_stdout
 		continue
 
 	#read request
-	df = pandas.read_json(io.StringIO(data.encode(errors='ignore').decode(encoding='utf-8',errors='ignore')), orient=config['orient'])
-	df=df['text'].apply(preprocess_text)
-	if automl is None:
-		automl = load()
-	if automl is None:
-		raise('Cannot find model.')
-	automl.update()
+	if 'file' in data:
+		try:
+			df = pandas.read_csv(data['file'])
+		except Exception as e:
+			print(e)
+			continue
+	else:
+		try:
+			#load data from request
+			df = pandas.read_json(io.StringIO(json.dumps(data).encode(errors='ignore').decode(encoding='utf-8',errors='ignore')), orient=config['orient'])
+		except Exception as e:
+			print(e)
+			continue
 	try:
-		original_result=automl.predict(df.to_list())
+		df=df['text'].apply(preprocess_text)
+		if automl is None:
+			automl = load()
+		if automl is None:
+			raise('Cannot find model.')
+		automl.update()
+		content=json.dumps({"predict":pretty_output(automl.predict(df.to_list()))})
+		sys.stdout = old_stdout
+		print(base64.b64encode(content.encode()).decode('utf-8')+"\t\t\t\n",flush=True)
+		sys.stdout=silent_stdout
 	except Exception as e:
-		raise
-	original_result=pretty_output(original_result)
-	sys.stdout = old_stdout
-	print(json.dumps({"predict":original_result}), flush=True)
-	sys.stdout=silent_stdout
+		print(e)
+		continue

@@ -1,4 +1,3 @@
-console.log("Env",process.env)
 module.exports = function(RED){
 	function rFCNode(config){
 		const path = require('path')
@@ -7,9 +6,9 @@ module.exports = function(RED){
 		const node = this;
 
 		//set configurations
-		node.file = __dirname +  '/../trainer.py'
+		node.file = __dirname +  '/text-classify-text-to-embed.py'
 		node.config = {
-			automl: 'text-classify-trainer',
+			automl: 'text-classify-text-to-embed',
 			save: path.join(config.savePath, config.saveName),
 			tokenizerPathOrName: config.tokenizerPathOrName,
 			modelPathOrName: config.modelPathOrName,
@@ -18,5 +17,5 @@ module.exports = function(RED){
 
 		utils.run(RED, node, config)
 	}
-	RED.nodes.registerType("text-classify-trainer", rFCNode);
+	RED.nodes.registerType("text-classify-text-to-embed", rFCNode);
 }

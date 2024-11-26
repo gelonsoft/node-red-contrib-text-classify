@@ -10,7 +10,7 @@ Install python and the following libraries:
 * [Pandas](https://pandas.pydata.org/ "Pandas")
 * [SciKit-Learn](http://scikit-learn.org "SciKit-Learn")
 * [PyTorch](http://scikit-learn.org "Torch(PyTorch)")
-* Full pip install: pip install scikit-learn evaluate transformers[torch] datasets nlp pandas nltk
+* Full pip install: pip install scikit-learn evaluate transformers[torch] datasets nlp pandas nltk langchain_huggingface
 * Run the following in your python after installation:
   * import nltk
   * nltk.download('stopwords')

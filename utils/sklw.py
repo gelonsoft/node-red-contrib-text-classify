@@ -26,15 +26,24 @@ class SKLW:
 
 		if id2label is not None:
 			self.model= AutoModelForSequenceClassification.from_pretrained(initial_model_path,num_labels=len(id2label),id2label=id2label,label2id={y:x for x,y in id2label.items()})
+			for name, param in self.model.named_parameters():
+				if 'classifier.' not in name:
+					param.requires_grad = False
 			self.pipe=TextClassificationPipeline(model=self.model, tokenizer=self.tokenizer, top_k=5)
 		else:
 			try:
 				self.model= AutoModelForSequenceClassification.from_pretrained(self.path)
+				for name, param in self.model.named_parameters():
+					if 'classifier.' not in name:
+						param.requires_grad = False
 				self.last = os.stat(self.path+"/config.json").st_mtime
 				self.pipe = TextClassificationPipeline(model=self.model, tokenizer=self.tokenizer, top_k=5)
 			except Exception as e:
 				print(e)
 				self.model= AutoModelForSequenceClassification.from_pretrained(initial_model_path)
+				for name, param in self.model.named_parameters():
+					if 'classifier.' not in name:
+						param.requires_grad = False
 				self.pipe= TextClassificationPipeline(model=self.model, tokenizer=self.tokenizer, top_k=5)
 
 	def fit(self, datasets):
@@ -92,4 +101,7 @@ class SKLW:
 		if(modified > self.last):
 			self.last = modified
 			self.model= AutoModelForSequenceClassification.from_pretrained(self.path)
+			for name, param in self.model.named_parameters():
+				if 'classifier.' not in name:
+					param.requires_grad = False
 			self.pipe= TextClassificationPipeline(model=self.model, tokenizer=self.tokenizer, top_k=5)

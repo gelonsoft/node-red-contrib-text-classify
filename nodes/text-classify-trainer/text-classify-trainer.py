@@ -1,17 +1,16 @@
 import sys
-from datasets import Dataset
 
-old_stdout=sys.__stdout__
-silent_stdout = sys.stderr
+old_stdout = sys.__stdout__
+silent_stdout = sys.__stderr__
 sys.stdout = silent_stdout
 
+from datasets import Dataset
+import base64
 import json
 import pandas
 import io
-from urllib.parse import unquote
 
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../../utils')
 from sklw import SKLW
@@ -19,16 +18,35 @@ from preprocess_text import preprocess_text
 
 REG_DETECTORS = ['text-classify-trainer']
 
-#read configurations
-config = json.loads(unquote(input()))
+# read configurations
+buf=''
+while True:
+	msg=input()
+	buf=buf+msg
+	if "\t\t\t" in msg:
+		config = json.loads(base64.b64decode(buf))
+		buf=""
+		break
+	else:
+		continue
 save = config['save']
 
 
 while True:
+	msg=input()
+	buf=buf+msg
 	#read request
-	data = unquote(input())
-	if "orient" in data:
-		new_config = json.loads(data)
+	if "\t\t\t" in msg:
+		try:
+			data = json.loads(base64.b64decode(buf))
+		except Exception as e:
+			print(e)
+			continue
+		buf=""
+	else:
+		continue
+	if "config" in data:
+		new_config = data['config']
 		if new_config.get('savePath') and new_config.get('saveName'):
 			config['save']=os.path.join(new_config['savePath'], new_config['saveName'])
 		if new_config.get('orient'):
@@ -43,16 +61,19 @@ while True:
 		sys.stdout=silent_stdout
 		continue
 
-
-	try:
-		#load data from request
-		df = pandas.read_json(io.StringIO(data.encode(errors='ignore').decode(encoding='utf-8',errors='ignore')), orient=config['orient'])
-
-	except Exception as e:
-		print(e)
-		#lead file specified in the request
-
-		df = pandas.read_csv(json.loads(data)['file'])
+	if 'file' in data:
+		try:
+			df = pandas.read_csv(data['file'])
+		except Exception as e:
+			print(e)
+			continue
+	else:
+		try:
+			#load data from request
+			df = pandas.read_json(io.StringIO(json.dumps(data).encode(errors='ignore').decode(encoding='utf-8',errors='ignore')), orient=config['orient'])
+		except Exception as e:
+			print(e)
+			continue
 
 	labels=None
 
@@ -74,9 +95,9 @@ while True:
 			automl.fit(datasets)
 		except Exception as e:
 			raise()
-
+	content=json.dumps({"state":"training completed","automl":config['automl']})
 	sys.stdout = old_stdout
-	print(json.dumps({"state":"training completed","automl":config['automl']}), flush=True)
+	print(base64.b64encode(content.encode()).decode('utf-8')+"\t\t\t\n",flush=True)
 	sys.stdout=silent_stdout
 
 	print("Done")
