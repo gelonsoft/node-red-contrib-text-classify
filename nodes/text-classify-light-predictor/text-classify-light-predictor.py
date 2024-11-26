@@ -39,7 +39,7 @@ def pretty_output(some):
 
 def load_model(save_path):
     _=OrderedDict() #Do not remove!
-    lnet = torch.load(save_path + "/my_model.pickle", weights_only=False).to(device)
+    lnet = torch.load(save_path + "/model.pickle", weights_only=False).to(device)
     with open(save_path + "/id2label.json", "rb") as f:
         lid2label = dict(json.load(f))
     lid2label = {int(k): v for k, v in lid2label.items()}
