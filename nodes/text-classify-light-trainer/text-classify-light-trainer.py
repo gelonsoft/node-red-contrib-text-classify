@@ -160,9 +160,8 @@ while True:
                 i += 1
             print(f'total_loss={total_loss.item() / count}, acc={acc.item() / count}',file=sys.__stderr__,flush=True)
 
-        dir = os.path.dirname(save)
-        if not os.path.isdir(dir):
-            os.makedirs(dir, exist_ok=True)
+        if not os.path.isdir(save):
+            os.makedirs(save, exist_ok=True)
 
         torch.save(new_net, save+"/model.pickle")
         with open(save+"/id2label.json","wb") as f:
