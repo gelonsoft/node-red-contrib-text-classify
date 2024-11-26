@@ -9,9 +9,7 @@ module.exports = function(RED){
 		node.file = __dirname +  '/text-classify-light-predictor.py'
 		node.config = {
 			automl: 'text-classify-light-predictor',
-			save: path.join(config.savePath, config.saveName),
-			tokenizerPathOrName: config.tokenizerPathOrName,
-			modelPathOrName: config.modelPathOrName,
+			save: path.join(config.modelPath, config.modelName),
 			orient: config.orient || 'split',
 		}
 

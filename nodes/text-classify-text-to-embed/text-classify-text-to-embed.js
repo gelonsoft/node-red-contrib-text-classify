@@ -1,6 +1,5 @@
 module.exports = function(RED){
 	function rFCNode(config){
-		const path = require('path')
 		const utils = require('../../utils/utils')
 
 		const node = this;
@@ -9,7 +8,6 @@ module.exports = function(RED){
 		node.file = __dirname +  '/text-classify-text-to-embed.py'
 		node.config = {
 			automl: 'text-classify-text-to-embed',
-			save: path.join(config.savePath, config.saveName),
 			modelPathOrName: config.modelPathOrName,
 			orient: config.orient || 'split',
 		}
