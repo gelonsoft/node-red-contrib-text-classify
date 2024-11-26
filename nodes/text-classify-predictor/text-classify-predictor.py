@@ -46,7 +46,7 @@ automl=None
 def load():
 	try:
 		from sklw import SKLW
-		return SKLW(path=config['path'],tokenizer_path=config['tokenizerPathOrName'],initial_model_path=config['modelPathOrName'])
+		return SKLW(path=config['path'],tokenizer_path=config['modelPathOrName'],initial_model_path=config['modelPathOrName'])
 	except Exception as e:
 		raise e
 		return None
@@ -70,8 +70,6 @@ while True:
 			config['path']=os.path.join(new_config['modelPath'], new_config['modelName'])
 		if new_config.get('orient'):
 			config['orient']=new_config['orient']
-		if new_config.get('tokenizerPathOrName'):
-			config['tokenizerPathOrName']=new_config['tokenizerPathOrName']
 		if new_config.get('modelPathOrName'):
 			config['modelPathOrName']=new_config['modelPathOrName']
 		automl = load()

@@ -10,7 +10,6 @@ module.exports = function(RED){
     node.topic = 'predicted'
     node.config = {
       path: path.join(config.modelPath, config.modelName),
-      tokenizerPathOrName: config.tokenizerPathOrName,
       modelPathOrName: config.modelPathOrName,
       orient: config.orient
     }

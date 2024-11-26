@@ -9,7 +9,6 @@ import base64
 import json
 import pandas
 import io
-
 import os
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../../utils')
@@ -51,8 +50,6 @@ while True:
 			config['save']=os.path.join(new_config['savePath'], new_config['saveName'])
 		if new_config.get('orient'):
 			config['orient']=new_config['orient']
-		if new_config.get('tokenizerPathOrName'):
-			config['tokenizerPathOrName']=new_config['tokenizerPathOrName']
 		if new_config.get('modelPathOrName'):
 			config['modelPathOrName']=new_config['modelPathOrName']
 		save = config['save']
@@ -90,7 +87,7 @@ while True:
 		categor=None
 		datasets=Dataset.from_pandas(df).train_test_split(test_size=0.2)
 		df=None
-		automl = SKLW(path=save,tokenizer_path=config['tokenizerPathOrName'],initial_model_path=config['modelPathOrName'],id2label=id2label)
+		automl = SKLW(path=save,tokenizer_path=config['modelPathOrName'],initial_model_path=config['modelPathOrName'],id2label=id2label)
 		try:
 			automl.fit(datasets)
 		except Exception as e:
