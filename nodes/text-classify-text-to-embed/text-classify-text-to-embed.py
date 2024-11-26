@@ -94,7 +94,10 @@ while True:
             continue
         embeddings = [ar for ar in hf_embeddings.embed_documents(texts)]
         emb_size=len(embeddings[0])
-        content = json.dumps(dict({'x'+str(i):[v[i] for v in embeddings] for i in range(emb_size)}))
+        df=df.drop(['text'],axis=1)
+        df=df.assign(**dict({'x'+str(i):[v[i] for v in embeddings] for i in range(emb_size)}))
+        #content = json.dumps(dict({'x'+str(i):[v[i] for v in embeddings] for i in range(emb_size)}))
+        content = json.dumps(df.to_dict(orient='list'))
         sys.stdout = old_stdout
         print(base64.b64encode(content.encode()).decode('utf-8') + "\t\t\t\n", flush=True)
         sys.stdout = silent_stdout
