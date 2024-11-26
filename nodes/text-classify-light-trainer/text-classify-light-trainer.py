@@ -1,4 +1,5 @@
 import sys
+import traceback
 from collections import OrderedDict
 
 import numpy as np
@@ -84,6 +85,9 @@ while True:
             data = json.loads(base64.b64decode(buf))
         except Exception as e:
             print(e)
+            if os.environ.get('DEBUG','0')=='1':
+                print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+                raise e
             continue
         buf=""
     else:
@@ -107,6 +111,9 @@ while True:
             df = pandas.read_csv(data['file'])
         except Exception as e:
             print(e)
+            if os.environ.get('DEBUG','0')=='1':
+                print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+                raise e
             continue
     else:
         try:
@@ -114,6 +121,9 @@ while True:
             df = pandas.read_json(io.StringIO(json.dumps(data).encode(errors='ignore').decode(encoding='utf-8',errors='ignore')), orient=config['orient'])
         except Exception as e:
             print(e)
+            if os.environ.get('DEBUG','0')=='1':
+                print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+                raise e
             continue
 
     try:
@@ -163,4 +173,7 @@ while True:
         sys.stdout=silent_stdout
     except Exception as e:
         print(e)
+        if os.environ.get('DEBUG','0')=='1':
+            print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+            raise e
         continue
