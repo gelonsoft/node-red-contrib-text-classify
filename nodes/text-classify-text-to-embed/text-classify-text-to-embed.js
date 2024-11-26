@@ -10,7 +10,6 @@ module.exports = function(RED){
 		node.config = {
 			automl: 'text-classify-text-to-embed',
 			save: path.join(config.savePath, config.saveName),
-			tokenizerPathOrName: config.tokenizerPathOrName,
 			modelPathOrName: config.modelPathOrName,
 			orient: config.orient || 'split',
 		}

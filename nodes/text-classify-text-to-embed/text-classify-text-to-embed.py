@@ -1,4 +1,6 @@
+import io
 import sys
+import traceback
 
 from langchain_huggingface import HuggingFaceEmbeddings
 
@@ -11,13 +13,9 @@ import json
 import pandas
 import os
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../../utils')
 from sklw import SKLW
 from preprocess_text import preprocess_text
-
-REG_DETECTORS = ['text-classify-text-to-embed']
 
 # read configurations
 buf = ''
@@ -42,6 +40,9 @@ while True:
             data = json.loads(base64.b64decode(buf))
         except Exception as e:
             print(e)
+            if os.environ.get('DEBUG','0')=='1':
+                print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+                raise e
             continue
         buf = ""
     else:
@@ -54,6 +55,8 @@ while True:
             config['orient'] = new_config['orient']
         if new_config.get('modelPathOrName'):
             config['modelPathOrName'] = new_config['modelPathOrName']
+            if hf_embeddings is None:
+                hf_embeddings = HuggingFaceEmbeddings(model_name=config['modelPathOrName'])
         save = config['save']
         sys.stdout = old_stdout
         print(json.dumps({"state": "parameters applied", "config": config}), flush=True)
@@ -62,7 +65,7 @@ while True:
 
     # Lazy load
     if hf_embeddings is None:
-        hf_embeddings = HuggingFaceEmbeddings(model_name=config['modelNameOrPath'])
+        hf_embeddings = HuggingFaceEmbeddings(model_name=config['modelPathOrName'])
 
     #read request
     if 'file' in data:
@@ -70,13 +73,19 @@ while True:
             df = pandas.read_csv(data['file'])
         except Exception as e:
             print(e)
+            if os.environ.get('DEBUG','0')=='1':
+                print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+                raise e
             continue
     else:
         try:
             #load data from request
-            df = pandas.DataFrame.from_dict(data['data'], orient=config['orient'])
+            df = pandas.read_json(io.StringIO(json.dumps(data).encode(errors='ignore').decode(encoding='utf-8',errors='ignore')), orient=config['orient'])
         except Exception as e:
             print(e)
+            if os.environ.get('DEBUG','0')=='1':
+                print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+                raise e
             continue
 
     try:
@@ -95,3 +104,7 @@ while True:
         sys.stdout = silent_stdout
     except Exception as e:
         print(e, file=sys.__stderr__, flush=True)
+        if os.environ.get('DEBUG','0')=='1':
+            print(traceback.format_exc() + "\n", file=sys.__stderr__, flush=True)
+            raise e
+

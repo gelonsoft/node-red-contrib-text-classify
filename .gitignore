@@ -136,3 +136,4 @@ node_modules
 /test/test.py
 /debug/
 /test/test2.py
+/test/test-text-classify-text-to-embed.js
