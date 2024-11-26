@@ -53,8 +53,8 @@
 	<ol class="node-ports">
 		<li>Standard output
 			<dl class="message-properties">
-				<dt>payload <span class="property-type">string</span></dt>
-				<dd>the result of the training operation.</dd>
+				<dt>payload <span class="property-type">json</span></dt>
+				<dd>the result of the training operation in format {"x1":[...number array],"x2":[...number array],...,"xN":[...number array]}</dd>
 			</dl>
 		</li>
 		<li>Standard error
@@ -67,10 +67,12 @@
 
 	<h3>Details</h3>
 	<p>
-		<code>msg.payload</code> is a json containing dataset with labels "text" and "label". See orient parameter value of pandas.read_json
+		<code>msg.payload</code> is a json containing training cases with labels "text" and "label". See orient parameter value of pandas.read_json<br/>
+		<or>
+		<code>msg.payload.file</code> is a csv containing training cases with columns "text" and "label"<br/>
 	</p>
 	<p>
-		This node fits a model to such json to match the labels.
+		This node fits a model to such json/csv to match the labels.
 	</p>
 
 	<h3>References</h3>

@@ -28,7 +28,6 @@ while True:
         break
     else:
         continue
-save = config['save']
 hf_embeddings = None
 
 while True:
@@ -49,15 +48,12 @@ while True:
         continue
     if "config" in data:
         new_config = data['config']
-        if new_config.get('savePath') and new_config.get('saveName'):
-            config['save'] = os.path.join(new_config['savePath'], new_config['saveName'])
         if new_config.get('orient'):
             config['orient'] = new_config['orient']
         if new_config.get('modelPathOrName'):
             config['modelPathOrName'] = new_config['modelPathOrName']
             if hf_embeddings is None:
                 hf_embeddings = HuggingFaceEmbeddings(model_name=config['modelPathOrName'])
-        save = config['save']
         sys.stdout = old_stdout
         print(json.dumps({"state": "parameters applied", "config": config}), flush=True)
         sys.stdout = silent_stdout
