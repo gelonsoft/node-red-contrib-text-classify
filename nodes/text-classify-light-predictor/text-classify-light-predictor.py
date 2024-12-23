@@ -109,7 +109,7 @@ while True:
             id2label, net = load_model(save)
             lastupdate = os.stat(save + "/id2label.json").st_mtime
         else:
-            modified = os.stat(save + "/config.json").st_mtime
+            modified = os.stat(save + "/id2label.json").st_mtime
             if modified > lastupdate:
                 id2label, net = load_model(save)
                 lastupdate = modified
