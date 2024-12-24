@@ -153,25 +153,26 @@ class FocalLoss(nn.Module):
         return lloss
 
 
-def pandas_train_test_split(df, frac=0.2,target_label='label'):
-    return train_test_split(df,test_size=frac,stratify=df[target_label])
+def pandas_train_test_split(df, frac=0.2, target_label='label'):
+    return train_test_split(df, test_size=frac, stratify=df[target_label])
+
 
 def get_loaders(param_df=None, target_label='label'):
-    maxx=max(param_df[target_label].value_counts().to_dict().keys())
-    #print(maxx)
+    maxx = max(param_df[target_label].value_counts().to_dict().keys())
+    # print(maxx)
     df_train, df_test = pandas_train_test_split(param_df)
-    x=dict(sorted(df_train[target_label].value_counts().to_dict().items()))
-    x={k: x[k] if k in x else sys.float_info.epsilon for k in range(maxx+1)}
-    #print(x)
-    x=list(x.values())
-    ma=max(x)+sys.float_info.epsilon
-    alpha_train=torch.FloatTensor([v/ma for v in x])
-    x=dict(sorted(df_test[target_label].value_counts().to_dict().items()))
-    x={k: x[k] if k in x else sys.float_info.epsilon for k in range(maxx+1)}
-    #print(x)
-    x=list(x.values())
-    ma=max(x)+sys.float_info.epsilon
-    alpha_test=torch.FloatTensor([v/ma for v in x])
+    x = dict(sorted(df_train[target_label].value_counts().to_dict().items()))
+    x = {k: x[k] if k in x else sys.float_info.epsilon for k in range(maxx + 1)}
+    # print(x)
+    x = list(x.values())
+    ma = max(x) + sys.float_info.epsilon
+    alpha_train = torch.FloatTensor([v / ma for v in x])
+    x = dict(sorted(df_test[target_label].value_counts().to_dict().items()))
+    x = {k: x[k] if k in x else sys.float_info.epsilon for k in range(maxx + 1)}
+    # print(x)
+    x = list(x.values())
+    ma = max(x) + sys.float_info.epsilon
+    alpha_test = torch.FloatTensor([v / ma for v in x])
 
     train_features_tensor = torch.tensor(df_train.drop(target_label, axis=1).values.astype(np.float32))
     train_output_tensor = torch.LongTensor(df_train[target_label].values.astype(np.longlong))
@@ -190,7 +191,7 @@ def get_loaders(param_df=None, target_label='label'):
 def train_epoch_emb(net, dataloader, lr=0.01, optimizer=None, loss_fn=torch.nn.CrossEntropyLoss(), epoch_size=None,
                     report_freq=200, device="cpu"):
     optimizer = optimizer or torch.optim.Adam(net.parameters(), lr=lr)
-    #loss_fn = loss_fn.to(device)
+    # loss_fn = loss_fn.to(device)
     net.train()
     total_loss, acc, count, i = 0, 0, 0, 0
     for embeddings, labels in dataloader:
@@ -278,7 +279,8 @@ while True:
             continue
 
     try:
-        df=df[df.groupby('label').label.transform(len)>1]
+        df = df[df.groupby('label').label.transform(len) > 1]
+        df = df.reset_index(drop=True)
         categor = pandas.Categorical(df['label'])
         id2label = dict(enumerate(categor.categories))
         label2id = {y: x for x, y in id2label.items()}
