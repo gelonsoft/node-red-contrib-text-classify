@@ -8,7 +8,7 @@ import traceback
 from collections import OrderedDict
 import numpy as np
 import torch
-from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.model_selection import train_test_split
 import base64
 import json
 import pandas
@@ -154,22 +154,24 @@ class FocalLoss(nn.Module):
 
 
 def pandas_train_test_split(df, frac=0.2,target_label='label'):
-    sss=StratifiedShuffleSplit(1, test_size=frac, random_state=None)
-    train_index, test_index =list(*sss.split(df,df[target_label]))
-    training_data=df.iloc[train_index]
-    test_data=df.iloc[test_index]
-    return training_data, test_data
-
+    return train_test_split(df,test_size=frac,stratify=df[target_label])
 
 def get_loaders(param_df=None, target_label='label'):
-    param_df=param_df[param_df.groupby(target_label).label.transform(len)>1]
-    df_train, df_test = pandas_train_test_split(param_df,target_label=target_label)
-    x=list(dict(sorted(df_train[target_label].value_counts().to_dict().items())).values())
+    maxx=max(param_df[target_label].value_counts().to_dict().keys())
+    #print(maxx)
+    df_train, df_test = pandas_train_test_split(param_df)
+    x=dict(sorted(df_train[target_label].value_counts().to_dict().items()))
+    x={k: x[k] if k in x else sys.float_info.epsilon for k in range(maxx+1)}
+    #print(x)
+    x=list(x.values())
     ma=max(x)+sys.float_info.epsilon
-    alpha_train=[v/ma for v in x]
-    x=list(dict(sorted(df_test[target_label].value_counts().to_dict().items())).values())
+    alpha_train=torch.FloatTensor([v/ma for v in x])
+    x=dict(sorted(df_test[target_label].value_counts().to_dict().items()))
+    x={k: x[k] if k in x else sys.float_info.epsilon for k in range(maxx+1)}
+    #print(x)
+    x=list(x.values())
     ma=max(x)+sys.float_info.epsilon
-    alpha_test=[v/ma for v in x]
+    alpha_test=torch.FloatTensor([v/ma for v in x])
 
     train_features_tensor = torch.tensor(df_train.drop(target_label, axis=1).values.astype(np.float32))
     train_output_tensor = torch.LongTensor(df_train[target_label].values.astype(np.longlong))
@@ -276,6 +278,7 @@ while True:
             continue
 
     try:
+        df=df[df.groupby('label').label.transform(len)>1]
         categor = pandas.Categorical(df['label'])
         id2label = dict(enumerate(categor.categories))
         label2id = {y: x for x, y in id2label.items()}
